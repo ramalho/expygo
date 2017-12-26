@@ -57,4 +57,7 @@ The numbers (e.g `1:`) are the prompts. Nothing is echoed as you type. Typing ju
 
 This program is implemented in Python 3 and Go for didactic reasons. The implementations behave identically as far as I can tell, except for this:
 
-* On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It shows a nice key icon in the console, but it seems to work only with ASCII input. 
+* On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It shows a nice key icon in the console, but it seems to work only with ASCII input.
+
+I am an experienced Pythonista but a newbie Gopher. If you know how to improve either version, please post an issue or send a pull request. Thanks!
+ 
