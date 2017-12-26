@@ -7,6 +7,11 @@ Using long, strong passphrases is great, once you overcome two challenges:
 
 `passdrill` lets you practice typing a long passphrase in a *safe* environment: your local console.
 
+This repository contains the same program implemented in Python 3 and Go.
+
+> **WARNING**: On MacOS, `passdrill.py` only supports ASCII passphrases. GNU/Linux and Windows not yet tested.
+
+
 ## Demo
 
 First, run `passdrill -s` to save the hash of a passphrase you want to practice. The passphrase itself is not saved, only its SHA-512 hash.
@@ -47,3 +52,9 @@ Type q to end practice.
 ```
 
 The numbers (e.g `1:`) are the prompts. Nothing is echoed as you type. Typing just `q` quits the practice.
+
+## About the code
+
+This program is implemented in Python 3 and Go for didactic reasons. The implementations behave identically as far as I can tell, except for this:
+
+* On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It shows a nice key icon in the console, but it seems to work only with ASCII input. 
