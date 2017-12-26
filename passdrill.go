@@ -4,6 +4,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/sha512"
 	"encoding/base64"
 	"fmt"
@@ -51,9 +52,9 @@ func prompt() string {
 	return passwd
 }
 
-func hashStr(text string) string {
+func hashBytes(text string) []byte {
 	octets := sha512.Sum512([]byte(text))
-	return base64.StdEncoding.EncodeToString(octets[:])
+	return []byte(base64.StdEncoding.EncodeToString(octets[:]))
 }
 
 func saveHash(args []string) {
@@ -61,7 +62,7 @@ func saveHash(args []string) {
 		fmt.Println("ERROR: invalid argument.", help)
 		os.Exit(1)
 	}
-	passwdHash := []byte(hashStr(prompt()))
+	passwdHash := hashBytes(prompt())
 	err := ioutil.WriteFile(hashFilename, passwdHash, 0644)
 	check(err)
 	fmt.Printf("Passphrase %s hash saved to %s\n",
@@ -69,13 +70,12 @@ func saveHash(args []string) {
 }
 
 func practice() {
-	octets, err := ioutil.ReadFile(hashFilename)
+	passwdHash, err := ioutil.ReadFile(hashFilename)
 	if os.IsNotExist(err) {
 		fmt.Println("ERROR: passphrase hash file not found.", help)
 		os.Exit(1)
 	}
 	check(err)
-	passwdHash := string(octets)
 	fmt.Println("Type q to end practice.")
 	turn := 0
 	response := ""
@@ -95,7 +95,7 @@ func practice() {
 			break
 		}
 		answer := "wrong"
-		if hashStr(response) == passwdHash {
+		if bytes.Compare(hashBytes(response), passwdHash) == 0 {
 			correct++
 			answer = "OK"
 		}

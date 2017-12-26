@@ -26,7 +26,7 @@ def prompt():
     return passwd
 
 
-def hash_str(text):
+def hash_bytes(text):
     octets = hashlib.sha512(text.encode('utf-8')).digest()
     return base64.b64encode(octets)
 
@@ -35,7 +35,7 @@ def save_hash(argv):
     if len(argv) > 2 or argv[1] != '-s':
         print('ERROR: invalid argument.', HELP)
         sys.exit(1)
-    passwd_hash = hash_str(prompt())
+    passwd_hash = hash_bytes(prompt())
     with open(HASH_FILENAME, 'wb') as fp:
         fp.write(passwd_hash)
     print(f'Passphrase {HASH_ALGORITHM} hash saved to',
@@ -63,7 +63,7 @@ def practice():
         elif response == 'q':
             turn -= 1  # don't count this response
             break
-        if hash_str(response) == passwd_hash:
+        if hash_bytes(response) == passwd_hash:
             correct += 1
             answer = 'OK'
         else:
