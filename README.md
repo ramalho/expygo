@@ -3,7 +3,7 @@
 Using long, strong passphrases is great, once you overcome two challenges:
 
 * memorize the passphrase;
-* learn to type it fase;
+* learn to type it fast;
 
 `passdrill` lets you practice typing a long passphrase in a *safe* environment: your local console.
 
@@ -14,7 +14,7 @@ This repository contains the same program implemented in Python 3 and Go.
 
 ## Demo
 
-First, run `passdrill -s` to save the hash of a passphrase you want to practice. The passphrase itself is not saved, only its SHA-512 hash.
+First, run `passdrill -s` to save the hash of a passphrase you want to practice. The passphrase itself is not saved, only its SHA-512 digest.
 
 >  **NOTE**: Before saving, `passdrill -s` will display the passphrase on your console so that you can confirm that you've typed it correctly. It will never be shown while you practice.
 
@@ -60,4 +60,3 @@ This program is implemented in Python 3 and Go for didactic reasons. The impleme
 * On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It shows a nice key icon in the console, but it seems to work only with ASCII input.
 
 I am an experienced Pythonista but a newbie Gopher. If you know how to improve either version, please post an issue or send a pull request. Thanks!
- 
