@@ -7,9 +7,9 @@ Using long, strong passphrases is great, once you overcome two challenges:
 
 `passdrill` lets you practice typing a long passphrase in a *safe* environment: your local console.
 
-This repository contains the same program implemented in Python 3 and Go. Both versions work fine on GNU/Linux with Unicode characters entered on a UTF-8 terminal.
+This repository contains the same program implemented in Python 3 and Go, tested on GNU/Linux, Windows and MacOS.
 
-> **WARNING**: On MacOS, `passdrill.py` only supports practicing with ASCII passphrases. Not yet tested Windows.
+> **WARNING**: On MacOS, `passdrill.py` only supports practicing with ASCII passphrases. Python's `getpass` function on that platform depends on some lower level API that does not handle Unicode as expected. 
 
 
 ## Demo
@@ -51,7 +51,7 @@ Type q to end practice.
 5 exercises. 60.0% correct.
 ```
 
-The numbers (e.g `1:`) are the prompts. Nothing is echoed as you type. Typing just `q` quits the practice.
+The numbers (e.g `1:`) are the prompts. Nothing is echoed as you type. Entering the letter `q` alone quits the practice.
 
 
 ## About the code
