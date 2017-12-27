@@ -58,7 +58,7 @@ The numbers (e.g `1:`) are the prompts. Nothing is echoed as you type. Entering 
 
 This program is implemented in Python 3 and Go for didactic reasons. The implementations behave identically as far as I can tell, except for this:
 
-* On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It shows a nice key icon in the console, but it seems to work only with ASCII input.
+* On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It shows a nice key prompt in the console, but it seems to work only with ASCII input.
 
 
 ### Comparing the implementations
