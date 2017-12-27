@@ -105,7 +105,6 @@ func practice() {
 		pct := float32(correct) / float32(turn) * 100
 		fmt.Printf("\n%d exercises. %0.1f%% correct.\n", turn, pct)
 	}
-
 }
 
 func main() {
