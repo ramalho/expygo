@@ -78,14 +78,13 @@ func practice() {
 	check(err)
 	fmt.Println("Type q to end practice.")
 	turn := 0
-	response := ""
 	correct := 0
 	for {
 		turn++
 		fmt.Printf("%d:", turn)
 		octets, err := gopass.GetPasswd()
 		check(err)
-		response = string(octets)
+		response := string(octets)
 		if response == "" {
 			fmt.Println("Type q to quit.")
 			turn-- // don't count this response
@@ -102,7 +101,7 @@ func practice() {
 		fmt.Printf("  %s\thits=%d\tmisses=%d\n", answer, correct, turn-correct)
 	}
 	if turn > 0 {
-		pct := float32(correct) / float32(turn) * 100
+		pct := float64(correct) / float64(turn) * 100
 		fmt.Printf("\n%d exercises. %0.1f%% correct.\n", turn, pct)
 	}
 }

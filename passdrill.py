@@ -50,7 +50,6 @@ def practice():
         print('ERROR: passphrase hash file not found.', HELP)
         sys.exit(2)
     print('Type q to end practice.')
-    response = ''
     turn = 0
     correct = 0
     while True:
