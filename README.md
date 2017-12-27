@@ -9,7 +9,7 @@ Using long, strong passphrases is great, once you overcome two challenges:
 
 This repository contains the same program implemented in Python 3 and Go, tested on GNU/Linux, Windows and MacOS.
 
-> **WARNING**: On MacOS, `passdrill.py` only supports practicing with ASCII passphrases. Python's `getpass` function on that platform depends on some lower level API that does not handle Unicode as expected. 
+> **WARNING**: On MacOS, `passdrill.py` uses Python's `getpass` function, and it does not support keyboards with dead keys for typing combining diacritics, such as the tilde in "não" (`getpass` returns "n~ao"). It does handle non-ASCII text when it is pasted to the prompt, so it is clearly a keyboard handling issue.
 
 
 ## Demo
@@ -58,7 +58,7 @@ The numbers (e.g `1:`) are the prompts. Nothing is echoed as you type. Entering 
 
 This program is implemented in Python 3 and Go for didactic reasons. The implementations behave identically as far as I can tell, except for this:
 
-* On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It shows a nice key prompt in the console, but it seems to work only with ASCII input.
+* On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It uses some MacOS API that shows a nice key prompt in the console, but it does not support dead keys for typing diacritics: when I type "não", I get "n~ao".
 
 
 ### Comparing the implementations
