@@ -3,7 +3,7 @@
 Using long, strong passphrases is great, once you overcome two challenges:
 
 * memorize the passphrase;
-* learn to type it fast;
+* learn to type it quickly and reliably.
 
 `passdrill` lets you practice typing a long passphrase in a *safe* environment: your local console.
 
@@ -53,10 +53,31 @@ Type q to end practice.
 
 The numbers (e.g `1:`) are the prompts. Nothing is echoed as you type. Typing just `q` quits the practice.
 
+
 ## About the code
 
 This program is implemented in Python 3 and Go for didactic reasons. The implementations behave identically as far as I can tell, except for this:
 
 * On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It shows a nice key icon in the console, but it seems to work only with ASCII input.
+
+
+### Comparing the implementations
+
+The source code the for Go version is longer than the Python version:
+
+|     | Python   | Go   | Δ    |
+| ---:| --------:| ----:| ----:| 
+|lines| 82       | 117  | +43% |
+|words| 247      | 330  | +34% |
+
+The Python version uses only packages from the Python standard library.
+
+I could not find equivalents for Python's `input` and `getpass` functions in the Go standard library. After wasting some time looking for them in the Go docs, I had to do some research and ask around. I decided to:
+
+* implement my own 10-line `input` function (see `passdrill.go`);
+* install the `github.com/howeyc/gopass` package as a dependency.
+
+
+### Contributors welcome!
 
 I am an experienced Pythonista but a newbie Gopher. If you know how to improve either version, please post an issue or send a pull request. Thanks!
