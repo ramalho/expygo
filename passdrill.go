@@ -10,19 +10,24 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
 	"github.com/howeyc/gopass"
 	"golang.org/x/crypto/pbkdf2"
+	"golang.org/x/crypto/scrypt"
 )
 
 const hashFilename = "passdrill.hash"
+const derivedKeyLen = 64
 const help = "Use -s to save passphrase hash for practice."
 
-func check(e error) {
+var logger = log.New(os.Stderr, "", log.Lshortfile)
+
+func check(msg string, e error) {
 	if e != nil {
-		panic(e)
+		logger.Fatalln(msg, e)
 	}
 }
 
@@ -33,7 +38,7 @@ func input(msg string) string {
 	if scanner.Scan() {
 		response = scanner.Text()
 	}
-	check(scanner.Err())
+	check("input: scanning", scanner.Err())
 	return response
 }
 
@@ -56,21 +61,31 @@ func prompt() string {
 func myPbkdf2(salt, content []byte) []byte {
 	algorithm := sha512.New
 	rounds := 200000
-	keyLen := 64
-	return pbkdf2.Key(content, salt, rounds, keyLen, algorithm)
+	return pbkdf2.Key(content, salt, rounds, derivedKeyLen, algorithm)
+}
+
+func myScrypt(salt, content []byte) []byte {
+	// The recommended parameters for interactive logins as of 2017 are:
+	// N=32768, r=8 and p=1 (https://godoc.org/golang.org/x/crypto/scrypt)
+	key, err := scrypt.Key(content, salt, 32768, 8, 1, derivedKeyLen)
+	check("myScrypt: Key", err)
+	return key
 }
 
 func computeHash(keyFunc string, salt []byte, text string) []byte {
 	if keyFunc == "pbkdf2" {
 		return myPbkdf2(salt, []byte(text))
+	} else if keyFunc == "scrypt" {
+		return myScrypt(salt, []byte(text))
 	}
-	panic("Unknown key function " + keyFunc)
+	logger.Fatalf("computeHash: Unknown key function " + keyFunc)
+	return nil
 }
 
 func buildHash(keyFunc, text string) []byte {
 	salt := make([]byte, 32)
 	_, err := rand.Read(salt)
-	check(err)
+	check("buildHash: Read", err)
 	octets := computeHash(keyFunc, salt, text)
 	headerStr := keyFunc + ":" + base64.StdEncoding.EncodeToString(salt) +
 		":" + base64.StdEncoding.EncodeToString(octets[:])
@@ -82,19 +97,22 @@ func saveHash(args []string) {
 		fmt.Println("ERROR: invalid argument.", help)
 		os.Exit(1)
 	}
-	wrappedHash := buildHash("pbkdf2", prompt())
+	wrappedHash := buildHash("scrypt", prompt())
 	err := ioutil.WriteFile(hashFilename, wrappedHash, 0600)
-	check(err)
+	check("saveHash: Writeflie", err)
 	fmt.Println("Passphrase hash saved to", hashFilename)
 }
 
 func unwrapHash(wrappedHash []byte) (string, []byte, []byte) {
 	fields := strings.Split(string(wrappedHash), ":")
+	if len(fields) != 3 {
+		logger.Fatalf("unwrapHash: invalid passphrase hash file")
+	}
 	keyFunc := fields[0]
 	salt, err := base64.StdEncoding.DecodeString(fields[1])
-	check(err)
+	check("unwrapHash: salt DecodeString", err)
 	passwdHash, err := base64.StdEncoding.DecodeString(fields[2])
-	check(err)
+	check("unwrapHash: passwdHash DecodeString", err)
 	return keyFunc, salt, passwdHash
 }
 
@@ -104,7 +122,7 @@ func practice() {
 		fmt.Println("ERROR: passphrase hash file not found.", help)
 		os.Exit(1)
 	}
-	check(err)
+	check("practice: ReadFile", err)
 	keyFunc, salt, passwdHash := unwrapHash(wrappedHash)
 	fmt.Println("Type q to end practice.")
 	turn := 0
@@ -113,7 +131,7 @@ func practice() {
 		turn++
 		fmt.Printf("%d:", turn)
 		octets, err := gopass.GetPasswd()
-		check(err)
+		check("practice: GetPasswd", err)
 		response := string(octets)
 		if response == "" {
 			fmt.Println("Type q to quit.")
