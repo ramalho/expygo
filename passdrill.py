@@ -72,7 +72,6 @@ def practice():
         sys.exit(2)
     key_func, salt, passwd_hash = unwrap_hash(wrapped_hash)
     print('Type q to end practice.')
-    response = ''
     turn = 0
     correct = 0
     while True:
