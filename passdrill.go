@@ -97,6 +97,8 @@ func saveHash(args []string) {
 		fmt.Println("ERROR: invalid argument.", help)
 		os.Exit(1)
 	}
+	// New passdrill hashes use scrypt; pbkdf2 is
+	// supported only for reading old hash files
 	wrappedHash := buildHash("scrypt", prompt())
 	err := ioutil.WriteFile(hashFilename, wrappedHash, 0600)
 	check("saveHash: Writeflie", err)
