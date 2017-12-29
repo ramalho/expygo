@@ -8,8 +8,13 @@ import hashlib
 import base64
 import getpass
 import os
+try:
+    import scrypt
+except ModuleNotFoundError:
+    scrypt = False
 
 HASH_FILENAME = 'passdrill.hash'
+DERIVED_KEY_LEN = 64
 HELP = 'Use -s to save passphrase hash for practice.'
 
 
@@ -26,19 +31,26 @@ def prompt():
     return passwd
 
 
-def pbkdf2(salt, octets):
+def my_pbkdf2(salt, octets):
     algorithm = 'sha512'
     rounds = 200_000
-    key_len = 64
-    return hashlib.pbkdf2_hmac(algorithm, octets, salt, rounds, key_len)
+    return hashlib.pbkdf2_hmac(algorithm, octets, salt, rounds,
+                               DERIVED_KEY_LEN)
+
+
+def my_scrypt(salt, octets):
+    # The recommended parameters for interactive logins as of 2017 are:
+    # N=32768, r=8 and p=1 (https://godoc.org/golang.org/x/crypto/scrypt)
+    return scrypt.hash(octets, salt, 32768, 8, 1, DERIVED_KEY_LEN)
 
 
 def compute_hash(key_func, salt, text):
     octets = text.encode('utf-8')
     if key_func == 'pbkdf2':
-        return pbkdf2(salt, octets)
-    else:
-        raise ValueError('Unknown key function ' + repr(key_func))
+        return my_pbkdf2(salt, octets)
+    elif key_func == 'scrypt':
+        return my_scrypt(salt, octets)
+    raise ValueError('Unknown key function ' + repr(key_func))
 
 
 def build_hash(key_func, text):
@@ -52,7 +64,11 @@ def save_hash(argv):
     if len(argv) > 2 or argv[1] != '-s':
         print('ERROR: invalid argument.', HELP)
         sys.exit(1)
-    wrapped_hash = build_hash('pbkdf2', prompt())
+    if scrypt:
+        wrapped_hash = build_hash('scrypt', prompt())
+    else:
+        print('WARNING: scrypt not available; using PBKDF2 as fallback.')
+        wrapped_hash = build_hash('pbkdf2', prompt())
     with open(HASH_FILENAME, 'wb') as fp:  # TODO: set permissions to 0o600
         fp.write(wrapped_hash)
     print(f'Passphrase hash saved to', HASH_FILENAME)
@@ -61,7 +77,7 @@ def save_hash(argv):
 def unwrap_hash(wrapped_hash):
     key_func, salt, passwd_hash = wrapped_hash.split(b':')
     return (key_func.decode('utf-8'), base64.b64decode(salt),
-        base64.b64decode(passwd_hash))
+            base64.b64decode(passwd_hash))
 
 
 def practice():
@@ -72,6 +88,11 @@ def practice():
         print('ERROR: passphrase hash file not found.', HELP)
         sys.exit(2)
     key_func, salt, passwd_hash = unwrap_hash(wrapped_hash)
+    if not scrypt and key_func == 'scrypt':
+        print('ERROR: scrypt module not available to read'
+              ' the existing hash file.')
+        print('       Use -s to save a new passphrase hash.')
+        sys.exit(3)
     print('Type q to end practice.')
     turn = 0
     correct = 0

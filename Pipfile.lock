@@ -1,0 +1,51 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "28490d05b202f9d6ea689d831bf6ad8c635568c8007c79d20340047ae26abd86"
+        },
+        "host-environment-markers": {
+            "implementation_name": "cpython",
+            "implementation_version": "3.6.4",
+            "os_name": "posix",
+            "platform_machine": "x86_64",
+            "platform_python_implementation": "CPython",
+            "platform_release": "4.10.0-42-generic",
+            "platform_system": "Linux",
+            "platform_version": "#46~16.04.1-Ubuntu SMP Mon Dec 4 15:57:59 UTC 2017",
+            "python_full_version": "3.6.4",
+            "python_version": "3.6",
+            "sys_platform": "linux"
+        },
+        "pipfile-spec": 6,
+        "requires": {},
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "scrypt": {
+            "hashes": [
+                "sha256:dc9abe69799ca423b938a06ddc33e5873e493ffcd68dbb9ba48396979b210d39",
+                "sha256:4e3cd639cc83e3f2c2241a01ebef9487c48b1ddf2d78f430d82d8f9ef60c6271",
+                "sha256:ae2fd88756fb4d98ccc5e2639af55eeb80863b3f9f6e0f539e5ce050964cdd5e",
+                "sha256:60e8c96a287ab892d9c7e1523d157ccfbdbe66da0c31738c8ed5732c2eea6a23",
+                "sha256:c0f90cabb8f6eaec05de5ce9aa9a9b67dc63d644e6b803beb1c43ae9b9452b65",
+                "sha256:c37a1f8440d7c621d9f23f3c1f2a28848bc50fefbca581fd7a1b01583a083c07",
+                "sha256:3422d11652cd12550540675e9fb54a1de6d60f3cbfedfb067284ef028589e2ee",
+                "sha256:d4a5a4f53450b8ef629bbf1ee4be6105c69936e49b3d8bc621ac2287f0c86020",
+                "sha256:6109a4df8c88f851df18a1a451e533dcc47e17cfe0e4561f4e08a82669ddc942",
+                "sha256:136f7d1caf596c5ee1fc7eab223605e956c3f61f77090fd9ea4e3e57a2040b78",
+                "sha256:c8909a2089fd1199781aa7ce2cb66b8866d40a9f9e1fba082e067ed9524d87e9",
+                "sha256:4333b67f190e5eaddc8800aefe33abd7e81b589bbe84a84be66872a4955dad6e",
+                "sha256:aeab005a8ae43a6e5d0165ce433a15955b151045d2bbfc52a8c96f100f825323",
+                "sha256:bb141584fa0ebdfb8a2a1fc7ddcf119ee18b1b9cd0fb3e4df9615760648b9d49"
+            ],
+            "version": "==0.8.0"
+        }
+    },
+    "develop": {}
+}
