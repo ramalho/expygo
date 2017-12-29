@@ -5,6 +5,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"crypto/rand"
 	"crypto/sha512"
 	"encoding/base64"
 	"fmt"
@@ -13,10 +14,10 @@ import (
 	"strings"
 
 	"github.com/howeyc/gopass"
+	"golang.org/x/crypto/pbkdf2"
 )
 
-const hashAlgorithm = "sha512"
-const hashFilename = "passdrill." + hashAlgorithm
+const hashFilename = "passdrill.hash"
 const help = "Use -s to save passphrase hash for practice."
 
 func check(e error) {
@@ -52,9 +53,28 @@ func prompt() string {
 	return passwd
 }
 
-func hashBytes(text string) []byte {
-	octets := sha512.Sum512([]byte(text))
-	return []byte(base64.StdEncoding.EncodeToString(octets[:]))
+func myPbkdf2(salt, content []byte) []byte {
+	algorithm := sha512.New
+	rounds := 200000
+	keyLen := 64
+	return pbkdf2.Key(content, salt, rounds, keyLen, algorithm)
+}
+
+func computeHash(keyFunc string, salt []byte, text string) []byte {
+	if keyFunc == "pbkdf2" {
+		return myPbkdf2(salt, []byte(text))
+	}
+	panic("Unknown key function " + keyFunc)
+}
+
+func buildHash(keyFunc, text string) []byte {
+	salt := make([]byte, 32)
+	_, err := rand.Read(salt)
+	check(err)
+	octets := computeHash(keyFunc, salt, text)
+	headerStr := keyFunc + ":" + base64.StdEncoding.EncodeToString(salt) +
+		":" + base64.StdEncoding.EncodeToString(octets[:])
+	return []byte(headerStr)
 }
 
 func saveHash(args []string) {
@@ -62,20 +82,30 @@ func saveHash(args []string) {
 		fmt.Println("ERROR: invalid argument.", help)
 		os.Exit(1)
 	}
-	passwdHash := hashBytes(prompt())
-	err := ioutil.WriteFile(hashFilename, passwdHash, 0644)
+	wrappedHash := buildHash("pbkdf2", prompt())
+	err := ioutil.WriteFile(hashFilename, wrappedHash, 0600)
 	check(err)
-	fmt.Printf("Passphrase %s hash saved to %s\n",
-		hashAlgorithm, hashFilename)
+	fmt.Println("Passphrase hash saved to", hashFilename)
+}
+
+func unwrapHash(wrappedHash []byte) (string, []byte, []byte) {
+	fields := strings.Split(string(wrappedHash), ":")
+	keyFunc := fields[0]
+	salt, err := base64.StdEncoding.DecodeString(fields[1])
+	check(err)
+	passwdHash, err := base64.StdEncoding.DecodeString(fields[2])
+	check(err)
+	return keyFunc, salt, passwdHash
 }
 
 func practice() {
-	passwdHash, err := ioutil.ReadFile(hashFilename)
+	wrappedHash, err := ioutil.ReadFile(hashFilename)
 	if os.IsNotExist(err) {
 		fmt.Println("ERROR: passphrase hash file not found.", help)
 		os.Exit(1)
 	}
 	check(err)
+	keyFunc, salt, passwdHash := unwrapHash(wrappedHash)
 	fmt.Println("Type q to end practice.")
 	turn := 0
 	correct := 0
@@ -94,7 +124,7 @@ func practice() {
 			break
 		}
 		answer := "wrong"
-		if bytes.Compare(hashBytes(response), passwdHash) == 0 {
+		if bytes.Compare(computeHash(keyFunc, salt, response), passwdHash) == 0 {
 			correct++
 			answer = "OK"
 		}

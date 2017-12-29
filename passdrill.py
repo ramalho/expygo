@@ -28,8 +28,9 @@ def prompt():
 
 def pbkdf2(salt, octets):
     algorithm = 'sha512'
-    rounds = 100_000
-    return hashlib.pbkdf2_hmac(algorithm, octets, salt, rounds)
+    rounds = 200_000
+    key_len = 64
+    return hashlib.pbkdf2_hmac(algorithm, octets, salt, rounds, key_len)
 
 
 def compute_hash(key_func, salt, text):
@@ -52,7 +53,7 @@ def save_hash(argv):
         print('ERROR: invalid argument.', HELP)
         sys.exit(1)
     wrapped_hash = build_hash('pbkdf2', prompt())
-    with open(HASH_FILENAME, 'wb') as fp:
+    with open(HASH_FILENAME, 'wb') as fp:  # TODO: set permissions to 0o600
         fp.write(wrapped_hash)
     print(f'Passphrase hash saved to', HASH_FILENAME)
 

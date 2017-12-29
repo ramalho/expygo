@@ -14,7 +14,7 @@ This repository contains the same program implemented in Python 3 and Go, tested
 
 ## Demo
 
-First, run `passdrill -s` to save the hash of a passphrase you want to practice. The passphrase itself is not saved, only its SHA-512 digest.
+First, run `passdrill -s` to save the hash of a passphrase you want to practice. The passphrase itself is not saved, only a derived key using PBKDF2 with SHA-512 (see [RFC 2898](https://tools.ietf.org/html/rfc2898)).
 
 >  **NOTE**: Before saving, `passdrill -s` will display the passphrase on your console so that you can confirm that you've typed it correctly. It will never be shown while you practice.
 
@@ -67,8 +67,8 @@ The source code the for Go version is longer than the Python version:
 
 |     | Python   | Go   | Δ    |
 | ---:| --------:| ----:| ----:| 
-|lines| 82       | 117  | +43% |
-|words| 247      | 330  | +34% |
+|lines| ???      | ???  | +??% |
+|words| ???      | ???  | +??% |
 
 The Python version uses only packages from the Python standard library.
 
