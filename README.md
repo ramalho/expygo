@@ -60,7 +60,7 @@ This program is implemented in Python 3 and Go for didactic reasons. The impleme
 
 * On MacOS, Python's `getpass` is used to read the passphrase in practice mode. It uses some MacOS API that shows a nice key prompt in the console, but it does not support dead keys for typing diacritics: when I type "não", I get "n~ao".
 
-* Both the Python and Go versions support reading `passdrill.hash` files created with **scrypt** or PBKDF2 -- the file has a header with the name of the method used to create it. When creating a new `passdrill.hash`, the Go version always uses **scrypt** because it is safer. The Python code tries to use **scrypt** if available, otherwise it uses PBKDF2.
+* When creating a new `passdrill.hash`, the Go version always uses the stronger **scrypt** method. The Python code tries to use **scrypt** if available, otherwise it uses PBKDF2. The hash file data is prefixed with the name of the method used to create it.
 
 
 ### Comparing the implementations
@@ -77,7 +77,7 @@ I could not find equivalents for Python's `input` and `getpass` functions in the
 * implement my own 10-line `input` function (see `passdrill.go`);
 * install the `github.com/howeyc/gopass` package as a dependency.
 
-On the other hand, the **script** password derivation algorithm is available from `golang.org/x/crypto/scrypt`, so it was easy to fetch with `go get` and use it. But in Python, the `hashlib.scrypt` function is only available for Python 3.6, and even then, it's only provided if the interpreter was compiled with OpenSSL 1.1+. 
+On the other hand, the **script** password derivation algorithm is available from `golang.org/x/crypto/scrypt`, so it was easy to fetch and use, thanks to the `go get` command. But in Python, the `hashlib.scrypt` function is only available for Python 3.6, and even then, it's only provided if the interpreter was compiled with OpenSSL 1.1+ — which was not my case. 
 
 On GNU/Linux (Ubuntu 16.04) I found it easier to pip-install the 3rd-party `scrypt` package by Magnus Hallin ([available on Pypi](https://pypi.python.org/pypi/scrypt/)) than compiling OpenSSL 1.1 and Python 3.6. However, because `scrypt` relies on C code, installing it on some environments is difficult.
 
