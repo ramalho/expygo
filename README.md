@@ -77,7 +77,7 @@ I could not find equivalents for Python's `input` and `getpass` functions in the
 * implement my own 10-line `input` function (see `passdrill.go`);
 * install the `github.com/howeyc/gopass` package as a dependency.
 
-On the other hand, the **script** password derivation algorithm is available from `golang.org/x/crypto/scrypt`, so it was easy to fetch and use, thanks to the `go get` command. But in Python, the `hashlib.scrypt` function is only available for Python 3.6, and even then, it's only provided if the interpreter was compiled with OpenSSL 1.1+ — which was not my case. 
+On the other hand, the **scrypt** password derivation algorithm is available from `golang.org/x/crypto/scrypt`, so it was easy to fetch and use, thanks to the `go get` command. But in Python, the `hashlib.scrypt` function is only available for Python 3.6, and even then, it's only provided if the interpreter was compiled with OpenSSL 1.1+ — which was not my case. 
 
 On GNU/Linux (Ubuntu 16.04) I found it easier to pip-install the 3rd-party `scrypt` package by Magnus Hallin ([available on Pypi](https://pypi.python.org/pypi/scrypt/)) than compiling OpenSSL 1.1 and Python 3.6. However, because `scrypt` relies on C code, installing it on some environments is difficult.
 
