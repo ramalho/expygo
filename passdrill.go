@@ -25,7 +25,7 @@ const help = "Use -s to save passphrase hash for practice."
 
 var logger = log.New(os.Stderr, "", log.Lshortfile)
 
-func check(msg string, e error) {
+func check(e error, msg string) {
 	if e != nil {
 		logger.Fatalln(msg, e)
 	}
@@ -38,7 +38,7 @@ func input(msg string) string {
 	if scanner.Scan() {
 		response = scanner.Text()
 	}
-	check("input: scanning", scanner.Err())
+	check(scanner.Err(), "input: scanning")
 	return response
 }
 
@@ -59,8 +59,8 @@ func prompt() string {
 }
 
 func myPbkdf2(salt, content []byte) []byte {
+	const rounds = 200000
 	algorithm := sha512.New
-	rounds := 200000
 	return pbkdf2.Key(content, salt, rounds, derivedKeyLen, algorithm)
 }
 
@@ -68,15 +68,16 @@ func myScrypt(salt, content []byte) []byte {
 	// The recommended parameters for interactive logins as of 2017 are:
 	// N=32768, r=8 and p=1 (https://godoc.org/golang.org/x/crypto/scrypt)
 	key, err := scrypt.Key(content, salt, 32768, 8, 1, derivedKeyLen)
-	check("myScrypt: Key", err)
+	check(err, "myScrypt: Key")
 	return key
 }
 
 func computeHash(keyFunc string, salt []byte, text string) []byte {
+	content := []byte(text)
 	if keyFunc == "pbkdf2" {
-		return myPbkdf2(salt, []byte(text))
+		return myPbkdf2(salt, content)
 	} else if keyFunc == "scrypt" {
-		return myScrypt(salt, []byte(text))
+		return myScrypt(salt, content)
 	}
 	logger.Fatalf("computeHash: Unknown key function " + keyFunc)
 	return nil
@@ -85,7 +86,7 @@ func computeHash(keyFunc string, salt []byte, text string) []byte {
 func buildHash(keyFunc, text string) []byte {
 	salt := make([]byte, 32)
 	_, err := rand.Read(salt)
-	check("buildHash: Read", err)
+	check(err, "buildHash: Read")
 	octets := computeHash(keyFunc, salt, text)
 	headerStr := keyFunc + ":" + base64.StdEncoding.EncodeToString(salt) +
 		":" + base64.StdEncoding.EncodeToString(octets[:])
@@ -101,7 +102,7 @@ func saveHash(args []string) {
 	// supported only for reading old hash files
 	wrappedHash := buildHash("scrypt", prompt())
 	err := ioutil.WriteFile(hashFilename, wrappedHash, 0600)
-	check("saveHash: Writeflie", err)
+	check(err, "saveHash: Writeflie")
 	fmt.Println("Passphrase hash saved to", hashFilename)
 }
 
@@ -112,9 +113,9 @@ func unwrapHash(wrappedHash []byte) (string, []byte, []byte) {
 	}
 	keyFunc := fields[0]
 	salt, err := base64.StdEncoding.DecodeString(fields[1])
-	check("unwrapHash: salt DecodeString", err)
+	check(err, "unwrapHash: salt DecodeString")
 	passwdHash, err := base64.StdEncoding.DecodeString(fields[2])
-	check("unwrapHash: passwdHash DecodeString", err)
+	check(err, "unwrapHash: passwdHash DecodeString")
 	return keyFunc, salt, passwdHash
 }
 
@@ -124,7 +125,7 @@ func practice() {
 		fmt.Println("ERROR: passphrase hash file not found.", help)
 		os.Exit(1)
 	}
-	check("practice: ReadFile", err)
+	check(err, "practice: ReadFile")
 	keyFunc, salt, passwdHash := unwrapHash(wrappedHash)
 	fmt.Println("Type q to end practice.")
 	turn := 0
@@ -133,7 +134,7 @@ func practice() {
 		turn++
 		fmt.Printf("%d:", turn)
 		octets, err := gopass.GetPasswd()
-		check("practice: GetPasswd", err)
+		check(err, "practice: GetPasswd")
 		response := string(octets)
 		if response == "" {
 			fmt.Println("Type q to quit.")

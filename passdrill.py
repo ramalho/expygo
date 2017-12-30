@@ -33,7 +33,7 @@ def prompt():
 
 def my_pbkdf2(salt, octets):
     algorithm = 'sha512'
-    rounds = 200_000
+    rounds = 200000
     return hashlib.pbkdf2_hmac(algorithm, octets, salt, rounds,
                                DERIVED_KEY_LEN)
 
