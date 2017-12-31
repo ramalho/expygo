@@ -25,12 +25,6 @@ const help = "Use -s to save passphrase hash for practice."
 
 var logger = log.New(os.Stderr, "", log.Lshortfile)
 
-func check(e error, msg string) {
-	if e != nil {
-		logger.Fatalln(msg, e)
-	}
-}
-
 func input(msg string) string {
 	response := ""
 	fmt.Print(msg)
@@ -38,7 +32,9 @@ func input(msg string) string {
 	if scanner.Scan() {
 		response = scanner.Text()
 	}
-	check(scanner.Err(), "input: scanning")
+	if err := scanner.Err(); err != nil {
+		logger.Fatalln(err)
+	}
 	return response
 }
 
@@ -68,7 +64,9 @@ func myScrypt(salt, content []byte) []byte {
 	// The recommended parameters for interactive logins as of 2017 are:
 	// N=32768, r=8 and p=1 (https://godoc.org/golang.org/x/crypto/scrypt)
 	key, err := scrypt.Key(content, salt, 32768, 8, 1, derivedKeyLen)
-	check(err, "myScrypt: Key")
+	if err != nil {
+		logger.Fatalln(err)
+	}
 	return key
 }
 
@@ -79,14 +77,16 @@ func computeHash(keyFunc string, salt []byte, text string) []byte {
 	} else if keyFunc == "scrypt" {
 		return myScrypt(salt, content)
 	}
-	logger.Fatalf("computeHash: Unknown key function " + keyFunc)
+	logger.Fatalln("computeHash: Unknown key function " + keyFunc)
 	return nil
 }
 
 func buildHash(keyFunc, text string) []byte {
 	salt := make([]byte, 32)
 	_, err := rand.Read(salt)
-	check(err, "buildHash: Read")
+	if err != nil {
+		logger.Fatalln(err)
+	}
 	octets := computeHash(keyFunc, salt, text)
 	headerStr := keyFunc + ":" + base64.StdEncoding.EncodeToString(salt) +
 		":" + base64.StdEncoding.EncodeToString(octets[:])
@@ -102,20 +102,27 @@ func saveHash(args []string) {
 	// supported only for reading old hash files
 	wrappedHash := buildHash("scrypt", prompt())
 	err := ioutil.WriteFile(hashFilename, wrappedHash, 0600)
-	check(err, "saveHash: Writeflie")
+	if err != nil {
+		logger.Fatalln(err)
+	}
 	fmt.Println("Passphrase hash saved to", hashFilename)
 }
 
 func unwrapHash(wrappedHash []byte) (string, []byte, []byte) {
 	fields := strings.Split(string(wrappedHash), ":")
 	if len(fields) != 3 {
-		logger.Fatalf("unwrapHash: invalid passphrase hash file")
+		logger.Fatalln("invalid passphrase hash file:",
+			"3 fields expected, found", len(fields))
 	}
 	keyFunc := fields[0]
 	salt, err := base64.StdEncoding.DecodeString(fields[1])
-	check(err, "unwrapHash: salt DecodeString")
+	if err != nil {
+		logger.Fatalln(err)
+	}
 	passwdHash, err := base64.StdEncoding.DecodeString(fields[2])
-	check(err, "unwrapHash: passwdHash DecodeString")
+	if err != nil {
+		logger.Fatalln(err)
+	}
 	return keyFunc, salt, passwdHash
 }
 
@@ -125,7 +132,9 @@ func practice() {
 		fmt.Println("ERROR: passphrase hash file not found.", help)
 		os.Exit(1)
 	}
-	check(err, "practice: ReadFile")
+	if err != nil {
+		logger.Fatalln(err)
+	}
 	keyFunc, salt, passwdHash := unwrapHash(wrappedHash)
 	fmt.Println("Type q to end practice.")
 	turn := 0
@@ -134,7 +143,9 @@ func practice() {
 		turn++
 		fmt.Printf("%d:", turn)
 		octets, err := gopass.GetPasswd()
-		check(err, "practice: GetPasswd")
+		if err != nil {
+			logger.Fatalln(err)
+		}
 		response := string(octets)
 		if response == "" {
 			fmt.Println("Type q to quit.")

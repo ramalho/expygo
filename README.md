@@ -65,12 +65,35 @@ This program is implemented in Python 3 and Go for didactic reasons. The impleme
 
 ### Comparing the implementations
 
-The source code the for Go version is 32% longer than the Python version:
+The source code the for Go version is about 40% longer than the Python version:
 
 |     | Python   | Go   | Δ    |
 | ---:| --------:| ----:| ----:| 
-|lines| 125      | 165  | +32% |
-|words| 407      | 533  | +31% |
+|lines| 125      | 177  | +41% |
+|words| 407      | 559  | +37% |
+
+
+#### Error checking
+
+For me, the major irritant in Go code is the repetition of `if err != nil {…}` blocks. In a CLI utility like this, almost every error is fatal: there is nothing to do except terminate, with some informative error output. Python gives me that for free. In Go, I wish I could call a function like this:
+
+```go
+	exitIf(err, "the input file is malformed")
+``` 
+
+Here is a sub-optimal implementation of `exitIf`:
+
+```
+func exitIf(e error, msg string) {
+	if e != nil {
+		logger.Fatalln(msg, e)
+	}
+}
+```
+
+The `Fatal…` functions output the line number when the logger is configured with the `log.Lshortfile`. The problem with `exitIf` is that the line number logged points to the `logger.Fatalln()` call, which is always the same. Ideally, `exitIf` should report the line number where **it** is called. I need to learn the internals of the `log` module.
+
+#### Missing batteries
 
 I could not find equivalents for Python's `input` and `getpass` functions in the Go standard library. After spending some time looking for them in the Go docs, searching the Web and asking around, I decided to:
 
@@ -81,11 +104,16 @@ On the other hand, the **scrypt** password derivation algorithm is available fro
 
 On GNU/Linux (Ubuntu 16.04) I found it easier to pip-install the 3rd-party `scrypt` package by Magnus Hallin ([available on Pypi](https://pypi.python.org/pypi/scrypt/)) than compiling OpenSSL 1.1 and Python 3.6. However, because `scrypt` relies on C code, installing it on some environments is difficult.
 
-This highlights a major deficiency of Python for building utilities like `passdrill`: dealing with external dependencies, particularly when they need to be compiled in some other language. I did not invest the time to setup a C compiler to build `scrypt` on Windows. As a work around, if the `scrypt` package cannot be imported, `passdrill.py` displays a warning and falls back to using the less secure `hashlib.pbkdf2_hmac` derivation function from the Python 3.6 standard library. 
+#### Ease of distribuition
 
-In contrast, Go compiles to static, stand-alone executables that can be easily compiled and distributed in binary form. In addition, because the performance of Go code is comparable to C, Go projects don't depend on external C libraries as much as Python projects do.
+The issues with **scrypt** described above exemplify a major deficiency of Python for building utilities like `passdrill`: dealing with external dependencies, particularly when they need to be compiled in some other language. I did not invest the time to setup a C compiler to build `scrypt` on Windows. As a work around, if the `scrypt` package cannot be imported, `passdrill.py` displays a warning and falls back to using the less secure `hashlib.pbkdf2_hmac` derivation function from the Python 3.6 standard library.
 
+The problem with installing dependencies does not affect only the Python programmer: it affects end users as well: they also must deal with these issues to run any script I write with external dependencies. 
+
+In contrast, `go build` compiles to static, stand-alone executables that can be easily distributed in binary form. In addition, because the performance of Go code is comparable to C, Go projects don't depend on external C libraries as much as Python projects do.
 
 ### Contributors welcome!
 
 I am an experienced Pythonista but a newbie Gopher. If you know how to improve either version, please post an issue or send a pull request. Thanks!
+
+If you'd like to ask questions or give direct feedback, please tweet me: [@ramalhoorg](https://twitter.com/ramalhoorg)
