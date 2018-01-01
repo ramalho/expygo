@@ -1,0 +1,31 @@
+{
+	"ImportPath": "github.com/ramalho/passdrill",
+	"GoVersion": "go1.9",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/howeyc/gopass",
+			"Rev": "bf9dde6d0d2c004a008c27aaee91170c786f6db8"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/pbkdf2",
+			"Rev": "d585fd2cc9195196078f516b69daff6744ef5e84"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/scrypt",
+			"Rev": "d585fd2cc9195196078f516b69daff6744ef5e84"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ssh/terminal",
+			"Rev": "d585fd2cc9195196078f516b69daff6744ef5e84"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "83801418e1b59fb1880e363299581ee543af32ca"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/windows",
+			"Rev": "83801418e1b59fb1880e363299581ee543af32ca"
+		}
+	]
+}
